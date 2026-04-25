@@ -410,7 +410,7 @@ function Testimonials() {
   return (
     <section className="section-pad">
       <div className="container-x">
-        <SectionHeader eyebrow="Why Customers Choose Us" title={<>Trusted solar solutions for <span className="text-gradient-gold">modern energy needs</span> at homes & businesses.</>} />
+        <SectionHeader eyebrow="Why Customers Choose Us" title={<>Trusted solar solutions for <span className="text-gradient-gold">modern energy needs at homes</span> & businesses.</>} />
         <div className="mt-12 grid md:grid-cols-3 gap-5">
           {REVIEWS.map((r) => (
             <figure key={r.name} className="rounded-2xl border border-border bg-gradient-surface p-7 shadow-card flex flex-col">
