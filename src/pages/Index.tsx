@@ -57,7 +57,7 @@ function Navbar() {
       VV Solar Solutions
     </div>
     <div className="text-[8px] sm:text-[10px] uppercase tracking-[0.16em] text-primary/90 font-semibold -mt-0.5">
-      Powering a Greener Planet · Smart Solar Savings
+      Unit of Techno Sync Soft Solutions Pvt Ltd
     </div>
   </div>
 </a>
