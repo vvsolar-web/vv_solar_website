@@ -146,10 +146,10 @@ function Hero() {
 
 /* ───────────────────────── TRUST ───────────────────────── */
 const TRUST = [
-  { icon: Star, value: "4.8★", label: "Customer Rating" },
-  { icon: Zap, value: "500+", label: "Installations" },
-  { icon: Award, value: "5+ yrs", label: "Experience" },
-  { icon: ShieldCheck, value: "25 yr", label: "Panel Warranty" },
+  { icon: ShieldCheck, value: "25 Year", label: "Performance Warranty" },
+  { icon: Award, value: "Premium", label: "Quality Components" },
+  { icon: FileCheck, value: "100%", label: "Subsidy Support" },
+  { icon: Clock, value: "On-Time", label: "Installation Guarantee" },
 ];
 function TrustBar() {
   return (
@@ -410,7 +410,7 @@ function Testimonials() {
   return (
     <section className="section-pad">
       <div className="container-x">
-        <SectionHeader eyebrow="Customers love us" title={<>Trusted by <span className="text-gradient-gold">500+ families</span> & businesses.</>} />
+        <SectionHeader eyebrow="Why Customers Choose Us" title={<>Trusted solar solutions for <span className="text-gradient-gold">modern energy needs</span> at homes & businesses.</>} />
         <div className="mt-12 grid md:grid-cols-3 gap-5">
           {REVIEWS.map((r) => (
             <figure key={r.name} className="rounded-2xl border border-border bg-gradient-surface p-7 shadow-card flex flex-col">
