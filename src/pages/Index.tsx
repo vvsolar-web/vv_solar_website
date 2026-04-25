@@ -45,13 +45,22 @@ function Navbar() {
       }`}
     >
       <div className="container-x flex h-16 sm:h-20 items-center justify-between">
-        <a href="#top" className="flex items-center gap-3">
-          <img src={logo} alt="VV Solar Solutions logo" className="h-10 w-10 sm:h-12 sm:w-12 object-contain" />
-          <div className="leading-tight">
-            <div className="font-display text-base sm:text-lg font-bold">VV Solar</div>
-            <div className="text-[10px] sm:text-xs text-muted-foreground -mt-0.5">Solutions</div>
-          </div>
-        </a>
+        <a href="#top" className="group flex items-center gap-3">
+  <div className="relative">
+    <div className="absolute inset-0 rounded-full bg-gradient-gold opacity-40 blur-md group-hover:opacity-70 transition-opacity" />
+    <div className="relative rounded-full bg-background/40 ring-1 ring-primary/40 p-1 backdrop-blur-sm">
+      <img src={logo} alt="VV Solar Solutions logo" className="h-9 w-9 sm:h-11 sm:w-11 object-contain" />
+    </div>
+  </div>
+  <div className="leading-tight">
+    <div className="font-display text-base sm:text-lg font-bold tracking-tight uppercase text-gradient-gold">
+      VV Solar Solutions
+    </div>
+    <div className="text-[8px] sm:text-[10px] uppercase tracking-[0.16em] text-primary/90 font-semibold -mt-0.5">
+      Powering a Greener Planet · Smart Solar Savings
+    </div>
+  </div>
+</a>
         <nav className="hidden md:flex items-center gap-8">
           {NAV.map((n) => (
             <a key={n.href} href={n.href} className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
