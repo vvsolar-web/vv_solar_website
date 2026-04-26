@@ -65,6 +65,42 @@
     --sidebar-border: 217 40% 25%;
     --sidebar-ring: 43 100% 50%;
   }
+
+  /* Light theme override — applied via <html class="light"> */
+  html.light {
+    --background: 40 40% 98%;
+    --foreground: 215 60% 12%;
+    --surface: 0 0% 100%;
+    --surface-elevated: 40 30% 96%;
+    --muted: 215 20% 92%;
+    --muted-foreground: 215 25% 35%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 60% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 60% 12%;
+
+    --primary: 38 95% 48%;
+    --primary-foreground: 215 60% 11%;
+    --primary-glow: 43 100% 62%;
+
+    --secondary: 215 30% 94%;
+    --secondary-foreground: 215 60% 12%;
+
+    --accent: 38 95% 48%;
+    --accent-foreground: 215 60% 11%;
+
+    --border: 215 25% 86%;
+    --input: 215 25% 86%;
+    --ring: 38 95% 48%;
+
+    --gradient-hero: linear-gradient(135deg, hsl(40 40% 98% / 0.92) 0%, hsl(215 30% 94% / 0.78) 50%, hsl(40 40% 98% / 0.55) 100%);
+    --gradient-surface: linear-gradient(160deg, hsl(0 0% 100%) 0%, hsl(40 40% 98%) 100%);
+    --gradient-glow: radial-gradient(circle at 50% 0%, hsl(38 95% 48% / 0.14), transparent 60%);
+
+    --shadow-elevated: 0 24px 60px -24px hsl(215 40% 30% / 0.25);
+    --shadow-card: 0 8px 30px -8px hsl(215 40% 30% / 0.18);
+  }
 }
 
 @layer base {
@@ -100,6 +136,32 @@
   .animate-fade-up { animation: fadeUp 0.8s var(--ease-smooth) both; }
   .animate-float  { animation: float 4s ease-in-out infinite; }
   .animate-pulse-gold { animation: pulseGold 2.4s ease-in-out infinite; }
+
+  /* Brand logo theming */
+  .brand-logo {
+    --logo-sun: hsl(var(--primary));
+    --logo-sun-glow: hsl(var(--primary-glow));
+    --logo-sun-edge: 38 92% 45%;
+    --logo-sun-edge: hsl(38 92% 45%);
+    --logo-panel-1: hsl(199 89% 60%);
+    --logo-panel-2: hsl(224 76% 38%);
+    --logo-panel-line: hsl(224 76% 25%);
+    --logo-v1-1: hsl(152 69% 52%);
+    --logo-v1-2: hsl(160 84% 30%);
+    --logo-v2-1: hsl(213 94% 68%);
+    --logo-v2-2: hsl(224 76% 38%);
+    --logo-leaf: hsl(142 71% 38%);
+    --logo-leaf-vein: hsl(160 84% 18%);
+    transition: filter 0.45s var(--ease-smooth), transform 0.45s var(--ease-smooth);
+    filter: drop-shadow(0 4px 10px hsl(215 80% 4% / 0.25));
+  }
+  .group:hover .brand-logo,
+  .brand-logo:hover {
+    --logo-sun: hsl(var(--primary-glow));
+    --logo-panel-1: hsl(199 95% 70%);
+    filter: drop-shadow(0 8px 22px hsl(var(--primary) / 0.55));
+    transform: translateY(-1px) scale(1.04) rotate(-1deg);
+  }
 }
 
 @keyframes fadeUp {

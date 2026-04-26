@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Sun, Phone, MessageCircle, ShieldCheck, Award, Zap, BatteryCharging,
+  Sun, Moon, Phone, MessageCircle, ShieldCheck, Award, Zap, BatteryCharging,
   Home as HomeIcon, Building2, Wrench, ArrowRight, CheckCircle2, Star,
   ClipboardList, FileCheck2, Sparkles, Menu, X, MapPin, Mail
 } from "lucide-react";
@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import logo from "@/assets/vv-solar-logo.png";
+import { BrandLogo } from "@/components/BrandLogo";
+import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 import hero from "@/assets/hero-solar.jpg";
 import g1 from "@/assets/gallery-1.jpg";
 import g2 from "@/assets/gallery-2.jpg";
@@ -27,10 +28,27 @@ const NAV = [
   { label: "Contact", href: "#contact" },
 ];
 
+/* ───────────────────────── THEME HOOK ───────────────────────── */
+function useTheme() {
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window === "undefined") return "dark";
+    const stored = localStorage.getItem("vv-theme");
+    if (stored === "light" || stored === "dark") return stored;
+    return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  });
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle("light", theme === "light");
+    localStorage.setItem("vv-theme", theme);
+  }, [theme]);
+  return { theme, toggle: () => setTheme((t) => (t === "light" ? "dark" : "light")) };
+}
+
 /* ───────────────────────── NAV ───────────────────────── */
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { theme, toggle } = useTheme();
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
@@ -38,29 +56,48 @@ function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const isLight = theme === "light";
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        scrolled ? "bg-background/85 backdrop-blur-xl border-b border-border/60 shadow-card" : "bg-transparent"
+        scrolled
+          ? isLight
+            ? "bg-background/75 backdrop-blur-md border-b border-border/70 shadow-card"
+            : "bg-background/85 backdrop-blur-xl border-b border-border/60 shadow-card"
+          : "bg-transparent"
       }`}
     >
-      <div className="container-x flex h-16 sm:h-20 items-center justify-between">
-        <a href="#top" className="group flex items-center gap-3">
-  <div className="relative">
-    <div className="absolute inset-0 rounded-full bg-gradient-gold opacity-40 blur-md group-hover:opacity-70 transition-opacity" />
-    <div className="relative rounded-full bg-background/40 ring-1 ring-primary/40 p-1 backdrop-blur-sm">
-      <img src={logo} alt="VV Solar Solutions logo" className="h-9 w-9 sm:h-11 sm:w-11 object-contain" />
-    </div>
-  </div>
-  <div className="leading-tight">
-    <div className="font-display text-base sm:text-lg font-bold tracking-tight uppercase text-gradient-gold">
-      VV Solar Solutions
-    </div>
-    <div className="text-[8px] sm:text-[10px] uppercase tracking-[0.16em] text-primary/90 font-semibold -mt-0.5">
-      Unit of Techno Sync Soft Solutions Pvt Ltd
-    </div>
-  </div>
-</a>
+      <div className="container-x flex h-16 sm:h-20 lg:h-24 items-center justify-between gap-3">
+        <a
+          href="#top"
+          className="group flex items-center gap-2.5 sm:gap-3 lg:gap-4 min-w-0 flex-shrink"
+          aria-label="VV Solar Solutions — home"
+        >
+          <div className="relative shrink-0">
+            <div className="absolute -inset-1.5 rounded-2xl bg-gradient-gold opacity-25 blur-xl group-hover:opacity-60 transition-opacity duration-500" />
+            <div
+              className={`relative rounded-2xl p-1.5 sm:p-2 ring-1 shadow-elevated transition-colors duration-300 ${
+                isLight
+                  ? "bg-[hsl(215_60%_11%)] ring-primary/50"
+                  : "bg-white ring-primary/40"
+              }`}
+            >
+              <BrandLogo className="h-8 w-8 sm:h-11 sm:w-11 lg:h-12 lg:w-12" />
+            </div>
+          </div>
+          <div className="leading-tight min-w-0">
+            <div className="font-display text-[15px] sm:text-xl lg:text-2xl font-extrabold tracking-tight whitespace-nowrap flex items-baseline gap-1 sm:gap-1.5">
+              <span className={isLight ? "text-[#1d4ed8]" : "text-[#2563eb]"}>VV</span>
+              <span className="text-gradient-gold">Solar</span>
+              <span className="text-foreground">Solutions</span>
+            </div>
+            <div className="mt-1 h-px w-full bg-gradient-to-r from-[#2563eb] via-primary to-transparent opacity-70" />
+            <div className="mt-1 text-[8.5px] sm:text-[10px] uppercase tracking-[0.16em] sm:tracking-[0.18em] text-muted-foreground font-medium truncate">
+              A Unit of Techno Sync Soft Solutions Pvt Ltd
+            </div>
+          </div>
+        </a>
         <nav className="hidden md:flex items-center gap-8">
           {NAV.map((n) => (
             <a key={n.href} href={n.href} className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
@@ -68,18 +105,34 @@ function Navbar() {
             </a>
           ))}
         </nav>
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2">
+          <button
+            onClick={toggle}
+            aria-label={isLight ? "Switch to dark mode" : "Switch to light mode"}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-surface/50 text-foreground/80 hover:text-primary hover:border-primary/60 transition-colors"
+          >
+            {isLight ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+          </button>
           <Button asChild variant="gold" size="sm">
             <a href={`tel:${PHONE}`}><Phone className="mr-2 h-4 w-4" />Call Now</a>
           </Button>
         </div>
-        <button
-          className="md:hidden p-2 text-foreground"
-          aria-label="Toggle menu"
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        <div className="md:hidden flex items-center gap-1">
+          <button
+            onClick={toggle}
+            aria-label={isLight ? "Switch to dark mode" : "Switch to light mode"}
+            className="p-2 text-foreground/80 hover:text-primary transition-colors"
+          >
+            {isLight ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+          </button>
+          <button
+            className="p-2 text-foreground"
+            aria-label="Toggle menu"
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
       {open && (
         <div className="md:hidden border-t border-border/60 bg-background/95 backdrop-blur-xl">
@@ -127,8 +180,12 @@ function Hero() {
             <Button asChild variant="gold" size="xl" className="animate-pulse-gold">
               <a href={`tel:${PHONE}`}><Phone className="mr-2 h-5 w-5" />Call Now</a>
             </Button>
-            <Button asChild variant="outlineGold" size="xl">
-              <a href={WHATSAPP} target="_blank" rel="noreferrer"><MessageCircle className="mr-2 h-5 w-5" />WhatsApp Quote</a>
+            <Button asChild variant="whatsappGlass" size="xl" className="group relative overflow-hidden">
+              <a href={WHATSAPP} target="_blank" rel="noreferrer">
+                <WhatsAppIcon className="mr-2 h-5 w-5" />
+                WhatsApp Quote
+                <span className="ml-2 inline-flex h-2 w-2 rounded-full bg-[#25D366] ring-2 ring-[#25D366]/30 animate-pulse group-hover:bg-white group-hover:ring-white/40" aria-hidden />
+              </a>
             </Button>
           </div>
           <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-sm text-muted-foreground">
@@ -146,24 +203,24 @@ function Hero() {
 
 /* ───────────────────────── TRUST ───────────────────────── */
 const TRUST = [
-  { icon: Star, value: "4.8★", label: "Customer Rating" },
-  { icon: Zap, value: "500+", label: "Installations" },
-  { icon: Award, value: "5+ yrs", label: "Experience" },
-  { icon: ShieldCheck, value: "25 yr", label: "Panel Warranty" },
+  { icon: ShieldCheck, title: "MNRE & TGREDCO", sub: "Empanelled Vendor" },
+  { icon: Award, title: "Tier-1 Panels", sub: "Premium Brands Only" },
+  { icon: FileCheck2, title: "Subsidy Assistance", sub: "End-to-End Paperwork" },
+  { icon: Sparkles, title: "25-Year Warranty", sub: "Performance Guaranteed" },
 ];
 function TrustBar() {
   return (
     <section className="relative -mt-10 z-20">
       <div className="container-x">
         <div className="glass rounded-2xl px-4 sm:px-8 py-6 grid grid-cols-2 md:grid-cols-4 gap-6 shadow-elevated">
-          {TRUST.map(({ icon: Icon, value, label }) => (
-            <div key={label} className="flex items-center gap-3 sm:gap-4">
-              <div className="h-11 w-11 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0">
+          {TRUST.map(({ icon: Icon, title, sub }) => (
+            <div key={title} className="flex items-center gap-3 sm:gap-4">
+              <div className="h-11 w-11 rounded-xl bg-gradient-gold text-primary-foreground flex items-center justify-center shrink-0 shadow-gold">
                 <Icon className="h-5 w-5" />
               </div>
-              <div>
-                <div className="font-display text-lg sm:text-xl font-bold">{value}</div>
-                <div className="text-xs sm:text-sm text-muted-foreground">{label}</div>
+              <div className="min-w-0">
+                <div className="font-display text-sm sm:text-base font-bold leading-tight">{title}</div>
+                <div className="text-[11px] sm:text-xs text-muted-foreground leading-tight">{sub}</div>
               </div>
             </div>
           ))}
@@ -410,13 +467,11 @@ function Testimonials() {
   return (
     <section className="section-pad">
       <div className="container-x">
-        <SectionHeader eyebrow="Customers love us" title={<>Trusted by <span className="text-gradient-gold">500+ families</span> & businesses.</>} />
+        <SectionHeader eyebrow="Customer stories" title={<>What our <span className="text-gradient-gold">customers say.</span></>} />
         <div className="mt-12 grid md:grid-cols-3 gap-5">
           {REVIEWS.map((r) => (
             <figure key={r.name} className="rounded-2xl border border-border bg-gradient-surface p-7 shadow-card flex flex-col">
-              <div className="flex gap-1 text-primary">
-                {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-4 w-4 fill-current" />)}
-              </div>
+              <div className="text-primary font-display text-3xl leading-none">"</div>
               <blockquote className="mt-4 text-foreground/90 leading-relaxed flex-1">"{r.quote}"</blockquote>
               <figcaption className="mt-6 pt-5 border-t border-border/60">
                 <div className="font-display font-semibold">{r.name}</div>
@@ -447,7 +502,7 @@ function Contact() {
             <div className="mt-8 space-y-5">
               <ContactRow icon={Phone} label="Call us" value="+91 90638 00858" href={`tel:${PHONE}`} />
               <ContactRow icon={MessageCircle} label="WhatsApp" value="Chat with us instantly" href={WHATSAPP} />
-              <ContactRow icon={Mail} label="Email" value="info@vvsolarsolutions.in" href="mailto:info@vvsolarsolutions.in" />
+              <ContactRow icon={Mail} label="Email" value="info@vvsolarsolutions.com" href="mailto:info@vvsolarsolutions.com" />
               <ContactRow icon={MapPin} label="Office" value="H.No 1-3-7/315, Chendrabella Vistas, RP Nilayam, Old Alwal, Medchal–Malkajgiri, Telangana 500010" />
             </div>
           </div>
@@ -502,10 +557,20 @@ function Footer() {
       <div className="container-x grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
         <div>
           <div className="flex items-center gap-3">
-            <img src={logo} alt="VV Solar" className="h-10 w-10 object-contain" />
+            <div className="relative shrink-0">
+              <div className="absolute -inset-1 rounded-2xl bg-gradient-gold opacity-25 blur-md" />
+              <div className="relative rounded-xl bg-white p-1.5 ring-1 ring-primary/30 shadow-card">
+                <BrandLogo className="h-9 w-9" />
+              </div>
+            </div>
             <div>
-              <div className="font-display font-bold">VV Solar Solutions</div>
-              <div className="text-xs text-muted-foreground">Unit of Techno Sync Soft Solutions Pvt Ltd</div>
+              <div className="font-display font-extrabold tracking-tight text-base flex items-baseline gap-1.5">
+                <span className="text-[#2563eb]">VV</span>
+                <span className="text-gradient-gold">Solar</span>
+                <span className="text-foreground">Solutions</span>
+              </div>
+              <div className="mt-0.5 h-px w-full bg-gradient-to-r from-[#2563eb] via-primary to-transparent opacity-70" />
+              <div className="mt-1 text-xs text-muted-foreground">A Unit of Techno Sync Soft Solutions Pvt Ltd</div>
             </div>
           </div>
           <p className="mt-4 text-sm text-muted-foreground">Crafting a sustainable planet, inspired by the sun.</p>
@@ -517,7 +582,7 @@ function Footer() {
           <p className="text-sm text-muted-foreground">MNRE • TGREDCO Empanelled Vendor</p>
           <div className="mt-4 flex gap-3">
             <Button asChild variant="gold" size="sm"><a href={`tel:${PHONE}`}><Phone className="mr-2 h-4 w-4" />Call</a></Button>
-            <Button asChild variant="outlineGold" size="sm"><a href={WHATSAPP} target="_blank" rel="noreferrer"><MessageCircle className="mr-2 h-4 w-4" />WhatsApp</a></Button>
+            <Button asChild variant="whatsappGlass" size="sm"><a href={WHATSAPP} target="_blank" rel="noreferrer"><WhatsAppIcon className="mr-2 h-4 w-4" />WhatsApp</a></Button>
           </div>
         </div>
       </div>
@@ -545,19 +610,43 @@ function FooterCol({ title, links }: { title: string; links: [string, string][] 
 function FloatingCTAs() {
   return (
     <>
+      {/* Floating WhatsApp FAB with live status */}
       <a
         href={WHATSAPP}
         target="_blank"
         rel="noreferrer"
-        aria-label="Chat on WhatsApp"
-        className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40 h-14 w-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-elevated hover:scale-110 transition-transform animate-float"
+        aria-label="Chat on WhatsApp — typically replies in minutes"
+        className="group fixed bottom-24 right-4 sm:bottom-8 sm:right-6 z-40 flex items-center"
       >
-        <MessageCircle className="h-7 w-7" />
+        {/* hover tooltip */}
+        <span className="hidden sm:inline-flex mr-3 items-center gap-2 rounded-full bg-background/90 backdrop-blur px-3 py-1.5 text-xs font-medium text-foreground shadow-card border border-border/60 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#25D366] animate-pulse" />
+          We reply in minutes
+        </span>
+        <span className="relative flex h-14 w-14 items-center justify-center">
+          <span className="absolute inset-0 rounded-full bg-[#25D366] opacity-60 animate-ping" />
+          <span className="relative h-14 w-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-[0_12px_32px_-8px_rgba(37,211,102,0.7)] hover:scale-110 transition-transform">
+            <WhatsAppIcon className="h-7 w-7" />
+            <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-[#25D366] ring-2 ring-background" />
+          </span>
+        </span>
       </a>
+
       {/* Sticky call bar (mobile only) */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur-xl px-4 py-3 flex gap-2 safe-bottom">
-        <Button asChild variant="gold" className="flex-1"><a href={`tel:${PHONE}`}><Phone className="mr-2 h-4 w-4" />Call Now</a></Button>
-        <Button asChild variant="outlineGold" className="flex-1"><a href={WHATSAPP} target="_blank" rel="noreferrer"><MessageCircle className="mr-2 h-4 w-4" />WhatsApp</a></Button>
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur-xl px-3 pt-2 pb-3 safe-bottom">
+        <div className="absolute -top-px inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+        <div className="flex items-center justify-center gap-1.5 mb-1.5 text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-semibold">
+          <span className="h-1 w-1 rounded-full bg-[#25D366] animate-pulse" />
+          Talk to a solar expert now
+        </div>
+        <div className="flex gap-2">
+          <Button asChild variant="gold" className="flex-1 h-12">
+            <a href={`tel:${PHONE}`}><Phone className="mr-2 h-4 w-4" />Call Now</a>
+          </Button>
+          <Button asChild variant="whatsappGlass" className="flex-1 h-12">
+            <a href={WHATSAPP} target="_blank" rel="noreferrer"><WhatsAppIcon className="mr-2 h-4 w-4" />WhatsApp</a>
+          </Button>
+        </div>
       </div>
     </>
   );
@@ -570,7 +659,7 @@ function SectionHeader({
   return (
     <div className={`max-w-2xl ${align === "center" ? "mx-auto text-center" : ""}`}>
       <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold uppercase tracking-wider">
-        <Sun className="h-3.5 w-3.5" /> {eyebrow}
+        <BrandLogo className="h-4 w-4" /> {eyebrow}
       </div>
       <h2 className="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">{title}</h2>
       {subtitle && <p className="mt-4 text-muted-foreground">{subtitle}</p>}
