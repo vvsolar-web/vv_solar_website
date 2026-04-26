@@ -487,10 +487,49 @@ function Testimonials() {
 
 /* ───────────────────────── CONTACT ───────────────────────── */
 function Contact() {
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const [submitting, setSubmitting] = useState(false);
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast.success("Thank you! We'll call you within 24 hours.");
-    (e.target as HTMLFormElement).reset();
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+
+    // Honeypot — silently drop bots
+    if ((fd.get("_honey") as string)?.length) return;
+
+    // Read fields (note: input "name" attributes are capitalized to match FormSubmit table headers)
+    const name = (fd.get("Name") as string)?.trim() || "Unknown";
+    const phone = (fd.get("Phone") as string)?.trim() || "—";
+    const email = (fd.get("Email") as string)?.trim() || "—";
+    const message = (fd.get("Message") as string)?.trim() || "—";
+
+    // Lead metadata for sales team
+    const submittedAt = new Date().toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      dateStyle: "full",
+      timeStyle: "short",
+    });
+    fd.set("Submitted At (IST)", submittedAt);
+    fd.set("Source Page", typeof window !== "undefined" ? window.location.href : "website");
+
+    // Business-formatted email subject + reply-to so sales can reply directly to the lead
+    fd.set("_subject", `🌞 New Solar Lead — ${name} • ${phone}`);
+    if (email && email !== "—") fd.set("_replyto", email);
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("https://formsubmit.co/ajax/info@vvsolarsolutions.com", {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: fd,
+      });
+      if (!res.ok) throw new Error("Network error");
+      toast.success("Thank you! Our solar expert will call you within 24 hours.");
+      form.reset();
+    } catch {
+      toast.error("Something went wrong. Please WhatsApp or call us directly.");
+    } finally {
+      setSubmitting(false);
+    }
   };
   return (
     <section id="contact" className="section-pad bg-gradient-surface">
@@ -507,26 +546,32 @@ function Contact() {
             </div>
           </div>
           <form onSubmit={onSubmit} className="rounded-3xl bg-background/40 border border-border shadow-elevated p-6 sm:p-8 space-y-4">
+            {/* FormSubmit.co configuration */}
+            <input type="hidden" name="_template" value="table" />
+            <input type="hidden" name="_captcha" value="false" />
+            <input type="hidden" name="_autoresponse" value="Hi, thanks for reaching out to VV Solar Solutions! We've received your enquiry and our solar expert will call you within 24 hours with a personalised proposal. — Team VV Solar (+91 90638 00858)" />
+            <input type="text" name="_honey" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" required placeholder="Your full name" className="mt-1.5 bg-background/40 border-border focus-visible:ring-primary" />
+                <Input id="name" name="Name" required placeholder="Your full name" className="mt-1.5 bg-background/40 border-border focus-visible:ring-primary" />
               </div>
               <div>
                 <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" required type="tel" placeholder="+91" className="mt-1.5 bg-background/40 border-border focus-visible:ring-primary" />
+                <Input id="phone" name="Phone" required type="tel" placeholder="+91" className="mt-1.5 bg-background/40 border-border focus-visible:ring-primary" />
               </div>
             </div>
             <div>
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="you@example.com" className="mt-1.5 bg-background/40 border-border focus-visible:ring-primary" />
+              <Input id="email" name="Email" type="email" placeholder="you@example.com" className="mt-1.5 bg-background/40 border-border focus-visible:ring-primary" />
             </div>
             <div>
               <Label htmlFor="msg">How can we help?</Label>
-              <Textarea id="msg" rows={4} placeholder="Tell us about your monthly bill and roof type…" className="mt-1.5 bg-background/40 border-border focus-visible:ring-primary" />
+              <Textarea id="msg" name="Message" rows={4} placeholder="Tell us about your monthly bill and roof type…" className="mt-1.5 bg-background/40 border-border focus-visible:ring-primary" />
             </div>
-            <Button type="submit" variant="gold" size="lg" className="w-full">
-              Request free site survey <ArrowRight className="ml-2 h-4 w-4" />
+            <Button type="submit" variant="gold" size="lg" className="w-full" disabled={submitting}>
+              {submitting ? "Sending…" : (<>Request free site survey <ArrowRight className="ml-2 h-4 w-4" /></>)}
             </Button>
             <p className="text-xs text-muted-foreground text-center">We respect your privacy. No spam, ever.</p>
           </form>
